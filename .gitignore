@@ -1,0 +1,10 @@
+venv/
+__pycache__/
+*.pyc
+.encryption_key
+uploads/*
+!uploads/.gitkeep
+static/generated/*
+static/reports/*
+temp_forensics/
+.pytest_cache/

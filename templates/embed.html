@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Embed Message — ShadowVault{% endblock %}
+{% block nav_embed %}active{% endblock %}
+
+{% block content %}
+<div class="breadcrumb"><a href="/">Home</a><span>›</span><span>Text Embed</span></div>
+
+<h1>🔒 Embed Secret Message</h1>
+<p class="subtitle">Hide encrypted text inside an image</p>
+
+<div id="message" class="message"></div>
+
+<form id="embedForm">
+    <div class="form-group">
+        <label for="imageInput">Cover Image</label>
+        <div class="upload-box" onclick="document.getElementById('imageInput').click()">
+            <p>Click to select an image (PNG / JPG, max 16 MB)</p>
+            <input type="file" id="imageInput" class="file-input" accept="image/*" required>
+            <button type="button" class="upload-btn">Choose Image</button>
+            <div id="imagePreview" class="preview"></div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="messageInput">Secret Message</label>
+        <textarea id="messageInput" rows="5" placeholder="Enter your secret message..." required></textarea>
+        <div class="char-counter">Characters: <span id="charCount">0</span></div>
+    </div>
+
+    <div class="form-group">
+        <label for="algorithm">Algorithm</label>
+        <select id="algorithm" required>
+            <option value="">Select algorithm...</option>
+            <option value="lsb">LSB — fast &amp; simple</option>
+            <option value="hugo">HUGO — adaptive</option>
+            <option value="wow">WOW — content-aware</option>
+        </select>
+    </div>
+
+    <div class="loader" id="loader"><div class="spinner"></div><p>Embedding message...</p></div>
+
+    <button type="submit" class="action-btn" id="embedBtn">🔒 Embed Message</button>
+</form>
+
+<div id="resultSection" class="result-section">
+    <h2>✅ Embedding Complete</h2>
+    <div class="comparison-grid">
+        <div class="comparison-item"><h3>Cover</h3><img id="coverImage" alt="cover"></div>
+        <div class="comparison-item"><h3>Stego</h3><img id="stegoImage" alt="stego"></div>
+        <div class="comparison-item"><h3>Distortion Map</h3><img id="distortionMap" alt="distortion" class="invert-img"></div>
+    </div>
+    <div class="download-section">
+        <a id="downloadStego" class="action-btn inline" download="stego_image.png">⬇ Download Stego Image</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const imageInput = document.getElementById('imageInput');
+const messageInput = document.getElementById('messageInput');
+const embedForm = document.getElementById('embedForm');
+const loader = document.getElementById('loader');
+const resultSection = document.getElementById('resultSection');
+const messageDiv = document.getElementById('message');
+
+attachPreview(imageInput, document.getElementById('imagePreview'));
+messageInput.addEventListener('input', () => {
+    document.getElementById('charCount').textContent = messageInput.value.length;
+});
+
+embedForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const file = imageInput.files[0];
+    if (!file || !messageInput.value || !document.getElementById('algorithm').value) {
+        showMessage(messageDiv, 'Please fill in all fields', 'error');
+        return;
+    }
+    hideMessage(messageDiv);
+    resultSection.classList.remove('show');
+    loader.classList.add('show');
+    document.getElementById('embedBtn').disabled = true;
+
+    const fd = new FormData();
+    fd.append('image', file);
+    fd.append('message', messageInput.value);
+    fd.append('algorithm', document.getElementById('algorithm').value);
+
+    try {
+        const res = await fetch('/perform_embed', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('coverImage').src = data.coverUrl;
+            document.getElementById('stegoImage').src = data.stegoUrl;
+            document.getElementById('distortionMap').src = data.distortionUrl;
+            document.getElementById('downloadStego').href = data.stegoUrl;
+            resultSection.classList.add('show');
+            showMessage(messageDiv, 'Message embedded successfully!', 'success');
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            showMessage(messageDiv, 'Error: ' + data.error, 'error');
+        }
+    } catch (err) {
+        showMessage(messageDiv, 'Error: ' + err.message, 'error');
+    } finally {
+        loader.classList.remove('show');
+        document.getElementById('embedBtn').disabled = false;
+    }
+});
+</script>
+{% endblock %}

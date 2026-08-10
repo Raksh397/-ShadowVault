@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}Detect Stego — ShadowVault{% endblock %}
+{% block nav_detect %}active{% endblock %}
+
+{% block content %}
+<div class="breadcrumb"><a href="/">Home</a><span>›</span><span>Detection</span></div>
+
+<h1>🔍 Stego Detection</h1>
+<p class="subtitle">Detect hidden messages via smart multi-algorithm extraction</p>
+
+<div id="message" class="message"></div>
+
+<form id="detectForm">
+    <div class="form-group">
+        <label for="imageInput">Image to Analyze</label>
+        <div class="upload-box" onclick="document.getElementById('imageInput').click()">
+            <p>Click to select an image</p>
+            <input type="file" id="imageInput" class="file-input" accept="image/*" required>
+            <button type="button" class="upload-btn">Choose Image</button>
+            <div id="imagePreview" class="preview"></div>
+        </div>
+    </div>
+
+    <div class="loader" id="loader"><div class="spinner"></div><p>Analyzing image...</p></div>
+
+    <button type="submit" class="action-btn" id="detectBtn">🔍 Analyze Image</button>
+</form>
+
+<div id="resultSection" class="result-section">
+    <div class="detection-result">
+        <div class="result-icon" id="resultIcon">🔍</div>
+        <h2 id="resultTitle">Analysis Result</h2>
+        <div class="result-badge" id="resultBadge">...</div>
+        <div class="confidence-block">
+            <div>Confidence: <strong id="confidence">0%</strong></div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+        <div class="result-explanation" id="explanation"></div>
+        <div id="algorithmInfo" style="display:none;">
+            <strong>Algorithm identified:</strong> <span id="algorithmName"></span>
+        </div>
+
+        <div id="reportSection" class="report-box" style="display:none;">
+            <h3>📊 Detailed Forensic Analysis</h3>
+            <p>Generate a PDF report with visual analysis and forensic metrics.</p>
+            <button id="generateReportBtn" class="action-btn inline">📊 Generate Forensic Report</button>
+            <div id="reportLoader" class="loader"><div class="spinner"></div><p>Generating report...</p></div>
+            <div id="reportResult" style="display:none;">
+                <p>✅ Report ready!</p>
+                <a id="reportDownloadLink" href="#" class="copy-btn">⬇ Download PDF</a>
+                <a id="reportViewLink" href="#" target="_blank" class="copy-btn alt">👁 View in Browser</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const imageInput = document.getElementById('imageInput');
+const detectForm = document.getElementById('detectForm');
+const loader = document.getElementById('loader');
+const resultSection = document.getElementById('resultSection');
+const messageDiv = document.getElementById('message');
+const reportSection = document.getElementById('reportSection');
+const reportLoader = document.getElementById('reportLoader');
+const reportResult = document.getElementById('reportResult');
+
+let detectionData = { imageId: null, imageFilename: null, algorithm: null, confidence: null, extractedMessage: null };
+
+attachPreview(imageInput, document.getElementById('imagePreview'));
+
+detectForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const file = imageInput.files[0];
+    if (!file) { showMessage(messageDiv, 'Please select an image', 'error'); return; }
+
+    hideMessage(messageDiv);
+    resultSection.classList.remove('show');
+    reportSection.style.display = 'none';
+    reportResult.style.display = 'none';
+    loader.classList.add('show');
+    document.getElementById('detectBtn').disabled = true;
+
+    const fd = new FormData();
+    fd.append('image', file);
+
+    try {
+        const res = await fetch('/perform_detect', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.success) {
+            detectionData = {
+                imageId: data.imageId,
+                imageFilename: data.imageFilename,
+                algorithm: data.algorithm,
+                confidence: parseFloat(data.confidence),
+                extractedMessage: data.extractedMessage || null,
+            };
+            displayResult(data);
+            showMessage(messageDiv, 'Analysis complete!', 'success');
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            showMessage(messageDiv, 'Error: ' + data.error, 'error');
+        }
+    } catch (err) {
+        showMessage(messageDiv, 'Error: ' + err.message, 'error');
+    } finally {
+        loader.classList.remove('show');
+        document.getElementById('detectBtn').disabled = false;
+    }
+});
+
+function displayResult(data) {
+    const isStego = data.prediction === 'Stego Image';
+    document.getElementById('resultIcon').textContent = isStego ? '⚠️' : '✅';
+    document.getElementById('resultTitle').textContent = data.prediction;
+    const badge = document.getElementById('resultBadge');
+    badge.textContent = data.prediction;
+    badge.className = 'result-badge ' + (isStego ? 'stego' : 'clean');
+    document.getElementById('confidence').textContent = data.confidence;
+    document.getElementById('progressFill').style.width = data.confidence;
+    document.getElementById('explanation').innerHTML = data.explanation;
+    document.getElementById('algorithmInfo').style.display = isStego ? 'block' : 'none';
+    if (isStego) document.getElementById('algorithmName').textContent = data.algorithm;
+    reportSection.style.display = 'block';
+    resultSection.classList.add('show');
+}
+
+document.getElementById('generateReportBtn').addEventListener('click', async () => {
+    if (!detectionData.imageId) { showMessage(messageDiv, 'Run detection first', 'error'); return; }
+    reportLoader.classList.add('show');
+    reportResult.style.display = 'none';
+
+    try {
+        const path = `uploads/detect_${detectionData.imageId}_${detectionData.imageFilename}`;
+        const res = await fetch('/generate_report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                stegoPath: path,
+                coverPath: path,
+                algorithm: detectionData.algorithm,
+                confidence: detectionData.confidence,
+                extractedMessage: detectionData.extractedMessage,
+            }),
+        });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('reportDownloadLink').href = data.downloadUrl || data.reportUrl;
+            document.getElementById('reportViewLink').href = data.reportUrl;
+            reportResult.style.display = 'block';
+            showMessage(messageDiv, 'Forensic report generated!', 'success');
+        } else {
+            showMessage(messageDiv, 'Error: ' + data.error, 'error');
+        }
+    } catch (err) {
+        showMessage(messageDiv, 'Error: ' + err.message, 'error');
+    } finally {
+        reportLoader.classList.remove('show');
+    }
+});
+</script>
+{% endblock %}

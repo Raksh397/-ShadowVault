@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Image-in-Image — ShadowVault{% endblock %}
+{% block nav_image %}active{% endblock %}
+
+{% block content %}
+<div class="breadcrumb"><a href="/">Home</a><span>›</span><span>Image Steganography</span></div>
+
+<h1>🖼️ Image-in-Image Steganography</h1>
+<p class="subtitle">Hide entire images inside other images (2-bit LSB)</p>
+
+<div class="mode-selector">
+    <button class="mode-btn active" id="modeEmbedBtn" onclick="switchMode('embed')">🔒 Hide Image</button>
+    <button class="mode-btn" id="modeExtractBtn" onclick="switchMode('extract')">🔓 Extract Image</button>
+</div>
+
+<div id="message" class="message"></div>
+
+<!-- Embed mode -->
+<div id="embed-mode" class="mode-content active">
+    <form id="embedImgForm">
+        <div class="form-row">
+            <div class="form-group">
+                <label>1. Cover Image (container)</label>
+                <div class="upload-box" onclick="document.getElementById('coverInput').click()">
+                    <p>Click to select cover image</p>
+                    <input type="file" id="coverInput" class="file-input" accept="image/*" required>
+                    <button type="button" class="upload-btn">Choose Cover</button>
+                    <div id="coverPreview" class="preview"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>2. Secret Image (to hide)</label>
+                <div class="upload-box" onclick="document.getElementById('secretInput').click()">
+                    <p>Click to select secret image</p>
+                    <input type="file" id="secretInput" class="file-input" accept="image/*" required>
+                    <button type="button" class="upload-btn">Choose Secret</button>
+                    <div id="secretPreview" class="preview"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="loader" id="embedLoader"><div class="spinner"></div><p>Hiding image...</p></div>
+        <button type="submit" class="action-btn" id="embedImgBtn">🔒 Hide Image Inside Cover</button>
+    </form>
+
+    <div id="embedResult" class="result-section">
+        <h2>✅ Stego Image Created</h2>
+        <img id="stegoImage" alt="stego">
+        <p id="embedMessage"></p>
+        <a id="downloadStego" class="copy-btn" download="stego_image.png">⬇ Download Stego Image</a>
+    </div>
+</div>
+
+<!-- Extract mode -->
+<div id="extract-mode" class="mode-content">
+    <form id="extractImgForm">
+        <div class="form-group">
+            <label>Stego Image</label>
+            <div class="upload-box" onclick="document.getElementById('stegoInput').click()">
+                <p>Click to select stego image</p>
+                <input type="file" id="stegoInput" class="file-input" accept="image/*" required>
+                <button type="button" class="upload-btn">Choose Stego</button>
+                <div id="stegoPreview" class="preview"></div>
+            </div>
+        </div>
+
+        <div class="loader" id="extractLoader"><div class="spinner"></div><p>Extracting hidden image...</p></div>
+        <button type="submit" class="action-btn" id="extractImgBtn">🔓 Extract Hidden Image</button>
+    </form>
+
+    <div id="extractResult" class="result-section">
+        <h2>✅ Hidden Content Extracted</h2>
+        <div id="extractedImageSection">
+            <img id="extractedImage" alt="extracted">
+            <p id="extractMessage"></p>
+            <a id="downloadExtracted" class="copy-btn">⬇ Download Extracted Image</a>
+        </div>
+        <div id="extractedTextSection" style="display:none;">
+            <div class="extracted-text" id="extractedText"></div>
+            <button class="copy-btn" onclick="copyExtractedText()">📋 Copy Text</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const coverInput = document.getElementById('coverInput');
+const secretInput = document.getElementById('secretInput');
+const stegoInput = document.getElementById('stegoInput');
+const messageDiv = document.getElementById('message');
+
+attachPreview(coverInput, document.getElementById('coverPreview'));
+attachPreview(secretInput, document.getElementById('secretPreview'));
+attachPreview(stegoInput, document.getElementById('stegoPreview'));
+
+function switchMode(mode) {
+    document.getElementById('modeEmbedBtn').classList.toggle('active', mode === 'embed');
+    document.getElementById('modeExtractBtn').classList.toggle('active', mode === 'extract');
+    document.getElementById('embed-mode').classList.toggle('active', mode === 'embed');
+    document.getElementById('extract-mode').classList.toggle('active', mode === 'extract');
+    hideMessage(messageDiv);
+    document.getElementById('embedResult').classList.remove('show');
+    document.getElementById('extractResult').classList.remove('show');
+}
+
+document.getElementById('embedImgForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!coverInput.files[0] || !secretInput.files[0]) {
+        showMessage(messageDiv, 'Select both cover and secret images', 'error');
+        return;
+    }
+    hideMessage(messageDiv);
+    document.getElementById('embedResult').classList.remove('show');
+    document.getElementById('embedLoader').classList.add('show');
+
+    const fd = new FormData();
+    fd.append('cover', coverInput.files[0]);
+    fd.append('secret', secretInput.files[0]);
+
+    try {
+        const res = await fetch('/embed_image_in_image', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('stegoImage').src = data.stegoUrl;
+            document.getElementById('downloadStego').href = data.stegoUrl;
+            document.getElementById('embedMessage').textContent = data.message;
+            document.getElementById('embedResult').classList.add('show');
+            showMessage(messageDiv, 'Image hidden successfully!', 'success');
+        } else {
+            showMessage(messageDiv, 'Error: ' + data.error, 'error');
+        }
+    } catch (err) {
+        showMessage(messageDiv, 'Error: ' + err.message, 'error');
+    } finally {
+        document.getElementById('embedLoader').classList.remove('show');
+    }
+});
+
+document.getElementById('extractImgForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!stegoInput.files[0]) {
+        showMessage(messageDiv, 'Select a stego image', 'error');
+        return;
+    }
+    hideMessage(messageDiv);
+    document.getElementById('extractResult').classList.remove('show');
+    document.getElementById('extractLoader').classList.add('show');
+
+    const fd = new FormData();
+    fd.append('stego', stegoInput.files[0]);
+
+    try {
+        const res = await fetch('/extract_image_from_image', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.success && data.dataType === 'image') {
+            document.getElementById('extractedImage').src = data.extractedUrl;
+            document.getElementById('downloadExtracted').href = data.extractedUrl;
+            document.getElementById('downloadExtracted').download = data.filename;
+            document.getElementById('extractMessage').textContent =
+                `${data.filename} (${data.size})`;
+            document.getElementById('extractedImageSection').style.display = 'block';
+            document.getElementById('extractedTextSection').style.display = 'none';
+            document.getElementById('extractResult').classList.add('show');
+        } else if (data.success && data.dataType === 'text') {
+            document.getElementById('extractedText').textContent = data.text;
+            document.getElementById('extractedImageSection').style.display = 'none';
+            document.getElementById('extractedTextSection').style.display = 'block';
+            document.getElementById('extractResult').classList.add('show');
+        } else {
+            showMessage(messageDiv, 'Error: ' + (data.error || 'Nothing found'), 'error');
+        }
+    } catch (err) {
+        showMessage(messageDiv, 'Error: ' + err.message, 'error');
+    } finally {
+        document.getElementById('extractLoader').classList.remove('show');
+    }
+});
+
+function copyExtractedText() {
+    navigator.clipboard.writeText(document.getElementById('extractedText').textContent)
+        .then(() => showMessage(messageDiv, 'Copied!', 'success'));
+}
+</script>
+{% endblock %}

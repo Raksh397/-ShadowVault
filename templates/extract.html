@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}Extract Message — ShadowVault{% endblock %}
+{% block nav_extract %}active{% endblock %}
+
+{% block content %}
+<div class="breadcrumb"><a href="/">Home</a><span>›</span><span>Extraction</span></div>
+
+<h1>🔓 Extract Hidden Message</h1>
+<p class="subtitle">Recover secret messages from stego images</p>
+
+<div id="message" class="message"></div>
+
+<form id="extractForm">
+    <div class="form-group">
+        <label for="imageInput">Stego Image</label>
+        <div class="upload-box" onclick="document.getElementById('imageInput').click()">
+            <p>Click to select stego image</p>
+            <input type="file" id="imageInput" class="file-input" accept="image/*" required>
+            <button type="button" class="upload-btn">Choose Image</button>
+            <div id="imagePreview" class="preview"></div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="algorithm">Algorithm</label>
+        <select id="algorithm" required>
+            <option value="">Select algorithm...</option>
+            <option value="lsb">LSB</option>
+            <option value="hugo">HUGO</option>
+            <option value="wow">WOW</option>
+        </select>
+        <p class="info-text">Must match the algorithm used for embedding (run Detect if unsure).</p>
+    </div>
+
+    <div class="loader" id="loader"><div class="spinner"></div><p>Extracting hidden message...</p></div>
+
+    <button type="submit" class="action-btn" id="extractBtn">🔓 Extract Message</button>
+</form>
+
+<div id="resultSection" class="result-section">
+    <h2>✨ Extracted Message</h2>
+    <div id="extractedText" class="extracted-text"></div>
+
+    <div id="algorithmDetection" class="note success" style="display:none;">
+        ✅ Verified algorithm: <span id="detectedAlgoName"></span>
+    </div>
+    <div id="algorithmWarning" class="note warning" style="display:none;">
+        ⚠️ Algorithm mismatch: image was embedded with <strong><span id="correctAlgoName"></span></strong>.
+    </div>
+
+    <div style="margin-top: 16px;">
+        <button class="copy-btn" onclick="copyToClipboard()">📋 Copy</button>
+        <button class="copy-btn alt" onclick="downloadAsText()">💾 Download as .txt</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const imageInput = document.getElementById('imageInput');
+const extractForm = document.getElementById('extractForm');
+const loader = document.getElementById('loader');
+const resultSection = document.getElementById('resultSection');
+const extractedText = document.getElementById('extractedText');
+const messageDiv = document.getElementById('message');
+
+attachPreview(imageInput, document.getElementById('imagePreview'));
+
+const ALGO_NAMES = { lsb: 'LSB', hugo: 'HUGO', wow: 'WOW' };
+
+extractForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const file = imageInput.files[0];
+    const algorithm = document.getElementById('algorithm').value;
+    if (!file || !algorithm) { showMessage(messageDiv, 'Select an image and algorithm', 'error'); return; }
+
+    hideMessage(messageDiv);
+    resultSection.classList.remove('show');
+    loader.classList.add('show');
+    document.getElementById('extractBtn').disabled = true;
+
+    const fd = new FormData();
+    fd.append('image', file);
+    fd.append('algorithm', algorithm);
+
+    try {
+        const res = await fetch('/perform_extract', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.success) {
+            extractedText.textContent = data.message;
+            const detected = data.detectedAlgorithm;
+            document.getElementById('algorithmDetection').style.display =
+                detected && detected === ALGO_NAMES[algorithm] ? 'block' : 'none';
+            document.getElementById('algorithmWarning').style.display =
+                detected && detected !== ALGO_NAMES[algorithm] ? 'block' : 'none';
+            if (detected) {
+                document.getElementById('detectedAlgoName').textContent = detected;
+                document.getElementById('correctAlgoName').textContent = detected;
+            }
+            resultSection.classList.add('show');
+            showMessage(messageDiv, 'Message extracted!', 'success');
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            showMessage(messageDiv, 'Error: ' + data.error, 'error');
+        }
+    } catch (err) {
+        showMessage(messageDiv, 'Error: ' + err.message, 'error');
+    } finally {
+        loader.classList.remove('show');
+        document.getElementById('extractBtn').disabled = false;
+    }
+});
+
+function copyToClipboard() {
+    navigator.clipboard.writeText(extractedText.textContent)
+        .then(() => showMessage(messageDiv, 'Copied to clipboard!', 'success'))
+        .catch(() => showMessage(messageDiv, 'Copy failed', 'error'));
+}
+
+function downloadAsText() {
+    const blob = new Blob([extractedText.textContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'extracted_message.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

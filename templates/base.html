@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ShadowVault - steganography and forensic image analysis suite">
+    <title>{% block title %}ShadowVault{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="header-content">
+            <a href="/" class="logo-section">
+                <div class="logo-icon">🛡️</div>
+                <div class="logo-text">
+                    <h1>ShadowVault</h1>
+                    <p>Steganography &amp; Forensic Suite</p>
+                </div>
+            </a>
+            <button class="mobile-menu-toggle" onclick="document.getElementById('headerNav').classList.toggle('active')">☰</button>
+            <nav class="header-nav" id="headerNav">
+                <a href="/" class="header-nav-btn {% block nav_home %}{% endblock %}">Home</a>
+                <a href="/embed" class="header-nav-btn {% block nav_embed %}{% endblock %}">Text Embed</a>
+                <a href="/image_stego" class="header-nav-btn {% block nav_image %}{% endblock %}">Image Embed</a>
+                <a href="/detect" class="header-nav-btn {% block nav_detect %}{% endblock %}">Detect</a>
+                <a href="/extract" class="header-nav-btn {% block nav_extract %}{% endblock %}">Extract</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="page-wrapper">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <p><strong>ShadowVault</strong> — secure data hiding with AES-256 encryption and forensic PDF reporting.</p>
+            <p class="muted">For educational and authorized security research use only.</p>
+        </div>
+    </footer>
+
+    <script>
+        function showMessage(el, html, type) {
+            el.innerHTML = html;
+            el.className = 'message show ' + type;
+        }
+        function hideMessage(el) {
+            el.className = 'message';
+        }
+        function attachPreview(input, previewEl) {
+            input.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function (ev) {
+                    previewEl.innerHTML = `<img src="${ev.target.result}" alt="preview">`;
+                    previewEl.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
