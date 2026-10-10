@@ -5,7 +5,7 @@
 {% block content %}
 <div class="breadcrumb"><a href="/">Home</a><span>›</span><span>Text Embed</span></div>
 
-<h1>🔒 Embed Secret Message</h1>
+<h1>Embed Secret Message</h1>
 <p class="subtitle">Hide encrypted text inside an image</p>
 
 <div id="message" class="message"></div>
@@ -14,9 +14,10 @@
     <div class="form-group">
         <label for="imageInput">Cover Image</label>
         <div class="upload-box" onclick="document.getElementById('imageInput').click()">
-            <p>Click to select an image (PNG / JPG, max 16 MB)</p>
+            <div class="upload-glyph"><svg class="icon" viewBox="0 0 24 24"><use href="#i-upload"/></svg></div>
+            <p>Click or drag an image here (PNG / JPG, max 16 MB)</p>
             <input type="file" id="imageInput" class="file-input" accept="image/*" required>
-            <button type="button" class="upload-btn">Choose Image</button>
+            <button type="button" class="upload-btn"><svg class="icon" viewBox="0 0 24 24"><use href="#i-image"/></svg>Choose Image</button>
             <div id="imagePreview" class="preview"></div>
         </div>
     </div>
@@ -39,18 +40,18 @@
 
     <div class="loader" id="loader"><div class="spinner"></div><p>Embedding message...</p></div>
 
-    <button type="submit" class="action-btn" id="embedBtn">🔒 Embed Message</button>
+    <button type="submit" class="action-btn" id="embedBtn"><svg class="icon" viewBox="0 0 24 24"><use href="#i-lock"/></svg>Embed Message</button>
 </form>
 
 <div id="resultSection" class="result-section">
-    <h2>✅ Embedding Complete</h2>
+    <h2><svg class="icon" viewBox="0 0 24 24"><use href="#i-check-circle"/></svg>Embedding Complete</h2>
     <div class="comparison-grid">
         <div class="comparison-item"><h3>Cover</h3><img id="coverImage" alt="cover"></div>
         <div class="comparison-item"><h3>Stego</h3><img id="stegoImage" alt="stego"></div>
         <div class="comparison-item"><h3>Distortion Map</h3><img id="distortionMap" alt="distortion" class="invert-img"></div>
     </div>
     <div class="download-section">
-        <a id="downloadStego" class="action-btn inline" download="stego_image.png">⬇ Download Stego Image</a>
+        <a id="downloadStego" class="action-btn inline" download="stego_image.png"><svg class="icon" viewBox="0 0 24 24"><use href="#i-download"/></svg>Download Stego Image</a>
     </div>
 </div>
 {% endblock %}

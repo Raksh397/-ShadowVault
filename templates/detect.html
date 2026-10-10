@@ -5,7 +5,7 @@
 {% block content %}
 <div class="breadcrumb"><a href="/">Home</a><span>›</span><span>Detection</span></div>
 
-<h1>🔍 Stego Detection</h1>
+<h1>Stego Detection</h1>
 <p class="subtitle">Detect hidden messages via smart multi-algorithm extraction</p>
 
 <div id="message" class="message"></div>
@@ -14,41 +14,42 @@
     <div class="form-group">
         <label for="imageInput">Image to Analyze</label>
         <div class="upload-box" onclick="document.getElementById('imageInput').click()">
-            <p>Click to select an image</p>
+            <div class="upload-glyph"><svg class="icon" viewBox="0 0 24 24"><use href="#i-upload"/></svg></div>
+            <p>Click or drag an image here</p>
             <input type="file" id="imageInput" class="file-input" accept="image/*" required>
-            <button type="button" class="upload-btn">Choose Image</button>
+            <button type="button" class="upload-btn"><svg class="icon" viewBox="0 0 24 24"><use href="#i-image"/></svg>Choose Image</button>
             <div id="imagePreview" class="preview"></div>
         </div>
     </div>
 
     <div class="loader" id="loader"><div class="spinner"></div><p>Analyzing image...</p></div>
 
-    <button type="submit" class="action-btn" id="detectBtn">🔍 Analyze Image</button>
+    <button type="submit" class="action-btn" id="detectBtn"><svg class="icon" viewBox="0 0 24 24"><use href="#i-search"/></svg>Analyze Image</button>
 </form>
 
 <div id="resultSection" class="result-section">
     <div class="detection-result">
-        <div class="result-icon" id="resultIcon">🔍</div>
-        <h2 id="resultTitle">Analysis Result</h2>
+        <div class="result-icon" id="resultIcon"><svg class="icon" viewBox="0 0 24 24"><use href="#i-search"/></svg></div>
+        <h2 id="resultTitle" style="justify-content:center;">Analysis Result</h2>
         <div class="result-badge" id="resultBadge">...</div>
         <div class="confidence-block">
             <div>Confidence: <strong id="confidence">0%</strong></div>
             <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
         </div>
         <div class="result-explanation" id="explanation"></div>
-        <div id="algorithmInfo" style="display:none;">
+        <div id="algorithmInfo" style="display:none; margin-top:1rem;">
             <strong>Algorithm identified:</strong> <span id="algorithmName"></span>
         </div>
 
         <div id="reportSection" class="report-box" style="display:none;">
-            <h3>📊 Detailed Forensic Analysis</h3>
+            <h3><svg class="icon" viewBox="0 0 24 24"><use href="#i-chart"/></svg>Detailed Forensic Analysis</h3>
             <p>Generate a PDF report with visual analysis and forensic metrics.</p>
-            <button id="generateReportBtn" class="action-btn inline">📊 Generate Forensic Report</button>
+            <button id="generateReportBtn" class="action-btn inline"><svg class="icon" viewBox="0 0 24 24"><use href="#i-file-text"/></svg>Generate Forensic Report</button>
             <div id="reportLoader" class="loader"><div class="spinner"></div><p>Generating report...</p></div>
             <div id="reportResult" style="display:none;">
-                <p>✅ Report ready!</p>
-                <a id="reportDownloadLink" href="#" class="copy-btn">⬇ Download PDF</a>
-                <a id="reportViewLink" href="#" target="_blank" class="copy-btn alt">👁 View in Browser</a>
+                <p><svg class="icon" viewBox="0 0 24 24" style="color:var(--success)"><use href="#i-check"/></svg> Report ready!</p>
+                <a id="reportDownloadLink" href="#" class="copy-btn"><svg class="icon" viewBox="0 0 24 24"><use href="#i-download"/></svg>Download PDF</a>
+                <a id="reportViewLink" href="#" target="_blank" class="copy-btn alt"><svg class="icon" viewBox="0 0 24 24"><use href="#i-eye"/></svg>View in Browser</a>
             </div>
         </div>
     </div>
@@ -112,7 +113,9 @@ detectForm.addEventListener('submit', async (e) => {
 
 function displayResult(data) {
     const isStego = data.prediction === 'Stego Image';
-    document.getElementById('resultIcon').textContent = isStego ? '⚠️' : '✅';
+    const iconEl = document.getElementById('resultIcon');
+    iconEl.className = 'result-icon ' + (isStego ? 'is-stego' : 'is-clean');
+    iconEl.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><use href="${isStego ? '#i-warning' : '#i-check-circle'}"/></svg>`;
     document.getElementById('resultTitle').textContent = data.prediction;
     const badge = document.getElementById('resultBadge');
     badge.textContent = data.prediction;

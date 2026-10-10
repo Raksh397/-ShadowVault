@@ -5,12 +5,12 @@
 {% block content %}
 <div class="breadcrumb"><a href="/">Home</a><span>›</span><span>Image Steganography</span></div>
 
-<h1>🖼️ Image-in-Image Steganography</h1>
+<h1>Image-in-Image Steganography</h1>
 <p class="subtitle">Hide entire images inside other images (2-bit LSB)</p>
 
 <div class="mode-selector">
-    <button class="mode-btn active" id="modeEmbedBtn" onclick="switchMode('embed')">🔒 Hide Image</button>
-    <button class="mode-btn" id="modeExtractBtn" onclick="switchMode('extract')">🔓 Extract Image</button>
+    <button class="mode-btn active" id="modeEmbedBtn" onclick="switchMode('embed')"><svg class="icon" viewBox="0 0 24 24"><use href="#i-lock"/></svg>Hide Image</button>
+    <button class="mode-btn" id="modeExtractBtn" onclick="switchMode('extract')"><svg class="icon" viewBox="0 0 24 24"><use href="#i-lock-open"/></svg>Extract Image</button>
 </div>
 
 <div id="message" class="message"></div>
@@ -22,32 +22,34 @@
             <div class="form-group">
                 <label>1. Cover Image (container)</label>
                 <div class="upload-box" onclick="document.getElementById('coverInput').click()">
-                    <p>Click to select cover image</p>
+                    <div class="upload-glyph"><svg class="icon" viewBox="0 0 24 24"><use href="#i-image"/></svg></div>
+                    <p>Click or drag the cover image</p>
                     <input type="file" id="coverInput" class="file-input" accept="image/*" required>
-                    <button type="button" class="upload-btn">Choose Cover</button>
+                    <button type="button" class="upload-btn"><svg class="icon" viewBox="0 0 24 24"><use href="#i-upload"/></svg>Choose Cover</button>
                     <div id="coverPreview" class="preview"></div>
                 </div>
             </div>
             <div class="form-group">
                 <label>2. Secret Image (to hide)</label>
                 <div class="upload-box" onclick="document.getElementById('secretInput').click()">
-                    <p>Click to select secret image</p>
+                    <div class="upload-glyph"><svg class="icon" viewBox="0 0 24 24"><use href="#i-image"/></svg></div>
+                    <p>Click or drag the secret image</p>
                     <input type="file" id="secretInput" class="file-input" accept="image/*" required>
-                    <button type="button" class="upload-btn">Choose Secret</button>
+                    <button type="button" class="upload-btn"><svg class="icon" viewBox="0 0 24 24"><use href="#i-upload"/></svg>Choose Secret</button>
                     <div id="secretPreview" class="preview"></div>
                 </div>
             </div>
         </div>
 
         <div class="loader" id="embedLoader"><div class="spinner"></div><p>Hiding image...</p></div>
-        <button type="submit" class="action-btn" id="embedImgBtn">🔒 Hide Image Inside Cover</button>
+        <button type="submit" class="action-btn" id="embedImgBtn"><svg class="icon" viewBox="0 0 24 24"><use href="#i-lock"/></svg>Hide Image Inside Cover</button>
     </form>
 
     <div id="embedResult" class="result-section">
-        <h2>✅ Stego Image Created</h2>
+        <h2><svg class="icon" viewBox="0 0 24 24"><use href="#i-check-circle"/></svg>Stego Image Created</h2>
         <img id="stegoImage" alt="stego">
         <p id="embedMessage"></p>
-        <a id="downloadStego" class="copy-btn" download="stego_image.png">⬇ Download Stego Image</a>
+        <a id="downloadStego" class="copy-btn" download="stego_image.png"><svg class="icon" viewBox="0 0 24 24"><use href="#i-download"/></svg>Download Stego Image</a>
     </div>
 </div>
 
@@ -57,27 +59,28 @@
         <div class="form-group">
             <label>Stego Image</label>
             <div class="upload-box" onclick="document.getElementById('stegoInput').click()">
-                <p>Click to select stego image</p>
+                <div class="upload-glyph"><svg class="icon" viewBox="0 0 24 24"><use href="#i-upload"/></svg></div>
+                <p>Click or drag the stego image</p>
                 <input type="file" id="stegoInput" class="file-input" accept="image/*" required>
-                <button type="button" class="upload-btn">Choose Stego</button>
+                <button type="button" class="upload-btn"><svg class="icon" viewBox="0 0 24 24"><use href="#i-image"/></svg>Choose Stego</button>
                 <div id="stegoPreview" class="preview"></div>
             </div>
         </div>
 
         <div class="loader" id="extractLoader"><div class="spinner"></div><p>Extracting hidden image...</p></div>
-        <button type="submit" class="action-btn" id="extractImgBtn">🔓 Extract Hidden Image</button>
+        <button type="submit" class="action-btn" id="extractImgBtn"><svg class="icon" viewBox="0 0 24 24"><use href="#i-lock-open"/></svg>Extract Hidden Image</button>
     </form>
 
     <div id="extractResult" class="result-section">
-        <h2>✅ Hidden Content Extracted</h2>
+        <h2><svg class="icon" viewBox="0 0 24 24"><use href="#i-check-circle"/></svg>Hidden Content Extracted</h2>
         <div id="extractedImageSection">
             <img id="extractedImage" alt="extracted">
             <p id="extractMessage"></p>
-            <a id="downloadExtracted" class="copy-btn">⬇ Download Extracted Image</a>
+            <a id="downloadExtracted" class="copy-btn"><svg class="icon" viewBox="0 0 24 24"><use href="#i-download"/></svg>Download Extracted Image</a>
         </div>
         <div id="extractedTextSection" style="display:none;">
             <div class="extracted-text" id="extractedText"></div>
-            <button class="copy-btn" onclick="copyExtractedText()">📋 Copy Text</button>
+            <button class="copy-btn" onclick="copyExtractedText()"><svg class="icon" viewBox="0 0 24 24"><use href="#i-copy"/></svg>Copy Text</button>
         </div>
     </div>
 </div>

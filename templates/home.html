@@ -3,52 +3,59 @@
 {% block nav_home %}active{% endblock %}
 
 {% block content %}
-<h1>🛡️ ShadowVault</h1>
-<p class="subtitle">Steganography &amp; Forensic Analysis Suite</p>
+<section class="hero">
+    <span class="hero-pill"><span class="dot"></span>AES-256 · 3 Algorithms · Forensic PDF</span>
+    <h1 class="hero-title">Hide, detect &amp; analyze<br>secrets inside images</h1>
+    <p class="subtitle hero-sub">A complete steganography &amp; forensic suite — embed encrypted data, detect hidden content, and generate professional forensic reports.</p>
+    <div class="hero-actions">
+        <a href="/embed" class="action-btn inline"><svg class="icon" viewBox="0 0 24 24"><use href="#i-lock"/></svg>Start Embedding</a>
+        <a href="/detect" class="copy-btn alt"><svg class="icon" viewBox="0 0 24 24"><use href="#i-search"/></svg>Analyze an Image</a>
+    </div>
+</section>
 
 <div class="feature-grid">
     <div class="feature-card">
-        <div class="feature-icon">🔒</div>
+        <div class="feature-icon"><svg class="icon" viewBox="0 0 24 24"><use href="#i-lock"/></svg></div>
         <h3>Hide Text Messages</h3>
         <p>Embed secret text into images using LSB, HUGO, or WOW with AES-256 encryption.</p>
-        <a href="/embed" class="action-btn">Start Embedding →</a>
+        <a href="/embed" class="action-btn btn-brand">Start Embedding <svg class="icon" viewBox="0 0 24 24"><use href="#i-arrow-right"/></svg></a>
         <div class="feature-tags"><span class="tag">AES-256</span><span class="tag">3 Algorithms</span></div>
     </div>
 
     <div class="feature-card highlight">
-        <div class="feature-icon">🖼️</div>
+        <div class="feature-icon"><svg class="icon" viewBox="0 0 24 24"><use href="#i-image"/></svg></div>
         <h3>Hide Images in Images</h3>
         <p>Conceal an entire image inside a cover image using 2-bit LSB steganography.</p>
-        <a href="/image_stego" class="action-btn">Hide Images →</a>
+        <a href="/image_stego" class="action-btn btn-brand">Hide Images <svg class="icon" viewBox="0 0 24 24"><use href="#i-arrow-right"/></svg></a>
         <div class="feature-tags"><span class="tag">2-bit LSB</span><span class="tag">PNG</span></div>
     </div>
 
     <div class="feature-card">
-        <div class="feature-icon">🔍</div>
+        <div class="feature-icon"><svg class="icon" viewBox="0 0 24 24"><use href="#i-search"/></svg></div>
         <h3>Detect Hidden Data</h3>
         <p>Automatically detect steganographic content and identify the algorithm used.</p>
-        <a href="/detect" class="action-btn">Analyze Image →</a>
+        <a href="/detect" class="action-btn btn-brand">Analyze Image <svg class="icon" viewBox="0 0 24 24"><use href="#i-arrow-right"/></svg></a>
         <div class="feature-tags"><span class="tag">Smart Detection</span><span class="tag">PDF Report</span></div>
     </div>
 
     <div class="feature-card">
-        <div class="feature-icon">🔓</div>
+        <div class="feature-icon"><svg class="icon" viewBox="0 0 24 24"><use href="#i-lock-open"/></svg></div>
         <h3>Extract Messages</h3>
         <p>Recover hidden text from stego images with automatic algorithm verification.</p>
-        <a href="/extract" class="action-btn">Extract Now →</a>
+        <a href="/extract" class="action-btn btn-brand">Extract Now <svg class="icon" viewBox="0 0 24 24"><use href="#i-arrow-right"/></svg></a>
         <div class="feature-tags"><span class="tag">Decryption</span><span class="tag">Auto-Verify</span></div>
     </div>
 </div>
 
 <div class="panel">
-    <h2>How It Works</h2>
+    <h2><svg class="icon" viewBox="0 0 24 24"><use href="#i-chart"/></svg>How It Works</h2>
     <div class="steps">
         <div class="step"><div class="step-number">1</div><p>Upload cover image</p></div>
-        <div class="step-arrow">→</div>
+        <div class="step-arrow"><svg class="icon" viewBox="0 0 24 24"><use href="#i-arrow-right"/></svg></div>
         <div class="step"><div class="step-number">2</div><p>Add secret data</p></div>
-        <div class="step-arrow">→</div>
+        <div class="step-arrow"><svg class="icon" viewBox="0 0 24 24"><use href="#i-arrow-right"/></svg></div>
         <div class="step"><div class="step-number">3</div><p>Choose algorithm</p></div>
-        <div class="step-arrow">→</div>
+        <div class="step-arrow"><svg class="icon" viewBox="0 0 24 24"><use href="#i-arrow-right"/></svg></div>
         <div class="step"><div class="step-number">4</div><p>Download stego image</p></div>
     </div>
 </div>

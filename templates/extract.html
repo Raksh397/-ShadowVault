@@ -5,7 +5,7 @@
 {% block content %}
 <div class="breadcrumb"><a href="/">Home</a><span>›</span><span>Extraction</span></div>
 
-<h1>🔓 Extract Hidden Message</h1>
+<h1>Extract Hidden Message</h1>
 <p class="subtitle">Recover secret messages from stego images</p>
 
 <div id="message" class="message"></div>
@@ -14,9 +14,10 @@
     <div class="form-group">
         <label for="imageInput">Stego Image</label>
         <div class="upload-box" onclick="document.getElementById('imageInput').click()">
-            <p>Click to select stego image</p>
+            <div class="upload-glyph"><svg class="icon" viewBox="0 0 24 24"><use href="#i-upload"/></svg></div>
+            <p>Click or drag the stego image here</p>
             <input type="file" id="imageInput" class="file-input" accept="image/*" required>
-            <button type="button" class="upload-btn">Choose Image</button>
+            <button type="button" class="upload-btn"><svg class="icon" viewBox="0 0 24 24"><use href="#i-image"/></svg>Choose Image</button>
             <div id="imagePreview" class="preview"></div>
         </div>
     </div>
@@ -34,23 +35,23 @@
 
     <div class="loader" id="loader"><div class="spinner"></div><p>Extracting hidden message...</p></div>
 
-    <button type="submit" class="action-btn" id="extractBtn">🔓 Extract Message</button>
+    <button type="submit" class="action-btn" id="extractBtn"><svg class="icon" viewBox="0 0 24 24"><use href="#i-lock-open"/></svg>Extract Message</button>
 </form>
 
 <div id="resultSection" class="result-section">
-    <h2>✨ Extracted Message</h2>
+    <h2><svg class="icon" viewBox="0 0 24 24"><use href="#i-key"/></svg>Extracted Message</h2>
     <div id="extractedText" class="extracted-text"></div>
 
     <div id="algorithmDetection" class="note success" style="display:none;">
-        ✅ Verified algorithm: <span id="detectedAlgoName"></span>
+        <svg class="icon" viewBox="0 0 24 24"><use href="#i-check"/></svg> Verified algorithm: <span id="detectedAlgoName"></span>
     </div>
     <div id="algorithmWarning" class="note warning" style="display:none;">
-        ⚠️ Algorithm mismatch: image was embedded with <strong><span id="correctAlgoName"></span></strong>.
+        <svg class="icon" viewBox="0 0 24 24"><use href="#i-warning"/></svg> Algorithm mismatch: image was embedded with <strong><span id="correctAlgoName"></span></strong>.
     </div>
 
     <div style="margin-top: 16px;">
-        <button class="copy-btn" onclick="copyToClipboard()">📋 Copy</button>
-        <button class="copy-btn alt" onclick="downloadAsText()">💾 Download as .txt</button>
+        <button class="copy-btn" onclick="copyToClipboard()"><svg class="icon" viewBox="0 0 24 24"><use href="#i-copy"/></svg>Copy</button>
+        <button class="copy-btn alt" onclick="downloadAsText()"><svg class="icon" viewBox="0 0 24 24"><use href="#i-download"/></svg>Download as .txt</button>
     </div>
 </div>
 {% endblock %}
